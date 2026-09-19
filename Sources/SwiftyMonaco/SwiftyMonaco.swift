@@ -23,6 +23,7 @@ public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDel
     private var _cursorBlink: CursorBlink = .blink
     private var _fontSize: Int = 12
     private var _theme: Theme? = nil
+    private var _languageServer: LanguageServer? = nil
     
     public init(text: Binding<String>) {
         self.text = text
@@ -86,6 +87,10 @@ public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDel
     public func monacoView(getTheme controller: MonacoViewController) -> Theme? {
         return _theme
     }
+
+    public func monacoView(getLanguageServer controller: MonacoViewController) -> LanguageServer? {
+        return _languageServer
+    }
 }
 
 // MARK: - Modifiers
@@ -104,6 +109,15 @@ public extension SwiftyMonaco {
     /// Highlights using the language Monaco associates with `fileExtension`.
     func syntaxHighlight(fileExtension: String) -> Self {
         syntaxHighlight(SyntaxHighlight(fileExtension: fileExtension))
+    }
+}
+
+public extension SwiftyMonaco {
+    /// Connects the editor to a Language Server Protocol server over WebSocket.
+    func languageServer(_ server: LanguageServer) -> Self {
+        var m = self
+        m._languageServer = server
+        return m
     }
 }
 

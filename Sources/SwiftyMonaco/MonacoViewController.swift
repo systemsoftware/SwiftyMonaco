@@ -176,6 +176,25 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         })();
         """
         evaluateJavascript(javascript)
+
+        if let languageServer = self.delegate?.monacoView(getLanguageServer: self) {
+            connectLanguageServer(languageServer)
+        }
+    }
+
+    private func connectLanguageServer(_ server: LanguageServer) {
+        var configuration: [String: Any] = [
+            "url": server.url.absoluteString,
+            "documentURI": server.documentURI
+        ]
+        if let workspaceRootURI = server.workspaceRootURI {
+            configuration["workspaceRootURI"] = workspaceRootURI
+        } else {
+            configuration["workspaceRootURI"] = NSNull()
+        }
+        let data = try! JSONSerialization.data(withJSONObject: configuration)
+        let json = String(data: data, encoding: .utf8)!
+        evaluateJavascript("window.SwiftyMonacoLanguageServer.connect(\(json));")
     }
     
     private func evaluateJavascript(_ javascript: String) {
@@ -245,5 +264,12 @@ public protocol MonacoViewControllerDelegate {
     func monacoView(getCursorBlink controller: MonacoViewController) -> CursorBlink
     func monacoView(getFontSize controller: MonacoViewController) -> Int
     func monacoView(getTheme controller: MonacoViewController) -> Theme?
+    func monacoView(getLanguageServer controller: MonacoViewController) -> LanguageServer?
     func monacoView(controller: MonacoViewController, textDidChange: String)
+}
+
+public extension MonacoViewControllerDelegate {
+    func monacoView(getLanguageServer controller: MonacoViewController) -> LanguageServer? {
+        nil
+    }
 }

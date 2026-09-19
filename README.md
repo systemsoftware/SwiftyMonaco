@@ -91,6 +91,31 @@ let inlineSyntax = SyntaxHighlight(
 
 See the [Monaco Monarch documentation](https://microsoft.github.io/monaco-editor/monarch.html) for the language-definition format.
 
+## IntelliSense and language servers
+
+Monaco provides built-in IntelliSense for JavaScript, TypeScript, JSON, CSS, and HTML. Select one of those languages by MIME type or file extension and Monaco automatically activates its bundled language service:
+
+```swift
+SwiftyMonaco(text: $text)
+    .syntaxHighlight(fileExtension: ".ts")
+```
+
+For other languages, connect a Language Server Protocol server exposed over WebSocket:
+
+```swift
+let server = LanguageServer(
+    url: URL(string: "ws://localhost:8080")!,
+    documentURI: "file:///workspace/main.swift",
+    workspaceRootURI: "file:///workspace"
+)
+
+SwiftyMonaco(text: $text)
+    .syntaxHighlight(fileExtension: ".swift")
+    .languageServer(server)
+```
+
+The LSP bridge supports full-document synchronization, completion suggestions, hover information, and diagnostics. The endpoint must accept JSON-RPC LSP messages directly over WebSocket; stdio-only language servers need a WebSocket proxy. On macOS, make sure the app has the outgoing network connection entitlement described above.
+
 # Interface theme detection
 `SwiftyMonaco` automatically detects interface theme changes and updates Monaco Editor theme according to it without dropping the current state of the editor.
 <img width="1012" alt="image" src="https://user-images.githubusercontent.com/17158860/111897521-60620800-8a31-11eb-9250-ec45b40e56cf.png">

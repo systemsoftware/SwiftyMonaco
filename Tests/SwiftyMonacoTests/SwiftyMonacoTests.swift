@@ -29,9 +29,23 @@ final class SwiftyMonacoTests: XCTestCase {
         XCTAssertEqual(fileExtension, ".ts")
     }
 
+    func testLanguageServerConfiguration() {
+        let url = URL(string: "ws://localhost:8080")!
+        let server = LanguageServer(
+            url: url,
+            documentURI: "file:///workspace/main.swift",
+            workspaceRootURI: "file:///workspace"
+        )
+
+        XCTAssertEqual(server.url, url)
+        XCTAssertEqual(server.documentURI, "file:///workspace/main.swift")
+        XCTAssertEqual(server.workspaceRootURI, "file:///workspace")
+    }
+
     static var allTests = [
         ("testMimeTypeSyntaxHighlight", testMimeTypeSyntaxHighlight),
         ("testFileExtensionSyntaxHighlightAddsLeadingPeriod", testFileExtensionSyntaxHighlightAddsLeadingPeriod),
         ("testFileExtensionSyntaxHighlightPreservesLeadingPeriod", testFileExtensionSyntaxHighlightPreservesLeadingPeriod),
+        ("testLanguageServerConfiguration", testLanguageServerConfiguration),
     ]
 }
