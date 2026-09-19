@@ -8,14 +8,42 @@
 import Foundation
 
 public struct SyntaxHighlight {
+    enum LanguageSelector {
+        case mimeType(String)
+        case fileExtension(String)
+    }
+
+    let languageSelector: LanguageSelector?
+
     public init(title: String, configuration: String) {
         self.title = title
         self.configuration = configuration
+        self.languageSelector = nil
     }
     
     public init(title: String, fileURL: URL) {
         self.title = title
         self.configuration = String(data: try! Data(contentsOf: fileURL), encoding: .utf8)!
+        self.languageSelector = nil
+    }
+
+    /// Uses a language bundled with Monaco, selected by one of its registered MIME types.
+    ///
+    /// For example, `SyntaxHighlight(mimeType: "application/json")`.
+    public init(mimeType: String) {
+        self.title = mimeType
+        self.configuration = ""
+        self.languageSelector = .mimeType(mimeType)
+    }
+
+    /// Uses a language bundled with Monaco, selected by one of its registered file extensions.
+    ///
+    /// Both `"swift"` and `".swift"` are accepted.
+    public init(fileExtension: String) {
+        let normalizedExtension = fileExtension.hasPrefix(".") ? fileExtension : ".\(fileExtension)"
+        self.title = normalizedExtension
+        self.configuration = ""
+        self.languageSelector = .fileExtension(normalizedExtension)
     }
     
     public var title: String

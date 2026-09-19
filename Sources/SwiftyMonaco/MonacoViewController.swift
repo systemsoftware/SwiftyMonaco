@@ -91,7 +91,31 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // Syntax Highlighting
         let syntax = self.delegate?.monacoView(getSyntax: self)
-        let syntaxJS = syntax != nil ? """
+        let syntaxJS: String
+        let syntaxJS2: String
+        switch syntax?.languageSelector {
+        case .mimeType(let mimeType):
+            syntaxJS = """
+            var requestedMimeType = \(javascriptString(mimeType)).split(';', 1)[0].trim().toLowerCase();
+            var selectedLanguage = monaco.languages.getLanguages().find(function(language) {
+                return (language.mimetypes || []).some(function(candidate) {
+                    return candidate.toLowerCase() === requestedMimeType;
+                });
+            });
+            """
+            syntaxJS2 = ", language: selectedLanguage ? selectedLanguage.id : 'plaintext'"
+        case .fileExtension(let fileExtension):
+            syntaxJS = """
+            var requestedExtension = \(javascriptString(fileExtension)).toLowerCase();
+            var selectedLanguage = monaco.languages.getLanguages().find(function(language) {
+                return (language.extensions || []).some(function(candidate) {
+                    return candidate.toLowerCase() === requestedExtension;
+                });
+            });
+            """
+            syntaxJS2 = ", language: selectedLanguage ? selectedLanguage.id : 'plaintext'"
+        case .none where syntax != nil:
+            syntaxJS = """
         // Register a new language
         monaco.languages.register({ id: 'mySpecialLanguage' });
 
@@ -99,8 +123,12 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         monaco.languages.setMonarchTokensProvider('mySpecialLanguage', (function() {
             \(syntax!.configuration)
         })());
-        """ : ""
-        let syntaxJS2 = syntax != nil ? ", language: 'mySpecialLanguage'" : ""
+        """
+            syntaxJS2 = ", language: 'mySpecialLanguage'"
+        case .none:
+            syntaxJS = ""
+            syntaxJS2 = ""
+        }
         
         // Minimap
         let _minimap = self.delegate?.monacoView(getMinimap: self)
@@ -172,6 +200,12 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
             break
           }
         }
+    }
+
+    private func javascriptString(_ value: String) -> String {
+        let data = try! JSONSerialization.data(withJSONObject: [value])
+        let array = String(data: data, encoding: .utf8)!
+        return String(array.dropFirst().dropLast())
     }
 }
 

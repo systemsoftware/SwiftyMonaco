@@ -95,6 +95,16 @@ public extension SwiftyMonaco {
         m.syntax = syntax
         return m
     }
+
+    /// Highlights using the language Monaco associates with `mimeType`.
+    func syntaxHighlight(mimeType: String) -> Self {
+        syntaxHighlight(SyntaxHighlight(mimeType: mimeType))
+    }
+
+    /// Highlights using the language Monaco associates with `fileExtension`.
+    func syntaxHighlight(fileExtension: String) -> Self {
+        syntaxHighlight(SyntaxHighlight(fileExtension: fileExtension))
+    }
 }
 
 public extension SwiftyMonaco {

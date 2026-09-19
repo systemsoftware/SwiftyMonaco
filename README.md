@@ -35,6 +35,17 @@ struct EditorView: View {
     }
 }
 ```
+
+Any language bundled with Monaco can be selected by MIME type or file extension:
+```swift
+SwiftyMonaco(text: $text)
+    .syntaxHighlight(mimeType: "application/json")
+
+SwiftyMonaco(text: $text)
+    .syntaxHighlight(fileExtension: ".ts")
+```
+
+Extensions may be passed with or without a leading period. If Monaco does not recognize the MIME type or extension, the editor falls back to plain text.
 ### Default `SyntaxHighlight`s
 | `SyntaxHighlight` | Language |
 | --- | --- |
